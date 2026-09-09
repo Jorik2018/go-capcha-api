@@ -149,7 +149,7 @@ stage('Install Go') {
         }
 
         stage('Stop Service') {
-                        steps {
+            steps {
                 bat '''
                     "%PYTHON_HOME%\\python.exe" ^
                         "%SERVICE_MANAGER%" ^
