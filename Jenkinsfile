@@ -1,17 +1,21 @@
 pipeline {
     agent any
 
-    environment {
-        SERVICE_ID = 'go-capcha-api'
-        SERVICE_NAME = 'Go Capcha API'
+environment {
+    SERVICE_ID = 'go-capcha-api'
+    SERVICE_NAME = 'Go Capcha API'
 
-        DEPLOY_DIR = 'D:\\microservices\\go-capcha-api'
-        EXE_NAME = 'go-capcha-api.exe'
+    DEPLOY_DIR = 'D:\\microservices\\go-capcha-api'
+    EXE_NAME = 'go-capcha-api.exe'
 
-        SERVICE_MANAGER = 'D:\\tools\\service_manager.py'
+    SERVICE_MANAGER = 'D:\\tools\\service_manager.py'
 
-        APP_PORT = '9731'
-    }
+    APP_PORT = '9731'
+
+    GO_VERSION = '1.27.1'
+    GO_ROOT = 'D:\\tools\\go'
+    GO_ZIP = 'D:\\tools\\go.zip'
+}
 
     stages {
 
