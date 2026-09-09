@@ -303,7 +303,7 @@ stage('Install Go') {
             echo 'Deployment failed'
 
             bat '''
-                python "%SERVICE_MANAGER%" status "%SERVICE_ID%"
+                "%PYTHON_HOME%\\python.exe" "%SERVICE_MANAGER%" status "%SERVICE_ID%"
             '''
         }
     }
