@@ -55,9 +55,9 @@ func main() {
 
 	http.HandleFunc("/health", healthHandler)
 
-	http.HandleFunc("/api/captcha/new", createCaptchaHandler)
-	http.HandleFunc("/api/captcha/validate", validateCaptchaHandler)
-	http.HandleFunc("/api/captcha/", captchaImageHandler)
+	http.HandleFunc("/new", createCaptchaHandler)
+	http.HandleFunc("/validate", validateCaptchaHandler)
+	http.HandleFunc("/", captchaImageHandler)
 
 	addr := ":" + port
 
