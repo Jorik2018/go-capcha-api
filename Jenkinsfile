@@ -15,6 +15,8 @@ environment {
     GO_VERSION = '1.27.1'
     GO_ROOT = 'D:\\tools\\go'
     GO_ZIP = 'D:\\tools\\go.zip'
+
+    PATH = "D:\\tools\\go\\bin;${env.PATH}"
 }
 
     stages {
