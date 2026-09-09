@@ -8,8 +8,6 @@ environment {
     DEPLOY_DIR = 'D:\\microservices\\go-capcha-api'
     EXE_NAME = 'go-capcha-api.exe'
 
-    SERVICE_MANAGER = 'D:\\tools\\service_manager.py'
-
     APP_PORT = '9731'
     PYTHON_HOME = 'C:\\Tools\\Python312'
     GO_VERSION = '1.27.1'
