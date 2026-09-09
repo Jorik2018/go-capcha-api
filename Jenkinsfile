@@ -11,7 +11,7 @@ environment {
     SERVICE_MANAGER = 'D:\\tools\\service_manager.py'
 
     APP_PORT = '9731'
-
+    PYTHON_HOME = 'C:\\Tools\\Python312'
     GO_VERSION = '1.27.1'
     GO_ROOT = 'D:\\tools\\go'
     GO_ZIP = 'D:\\tools\\go.zip'
@@ -149,9 +149,12 @@ stage('Install Go') {
         }
 
         stage('Stop Service') {
-            steps {
+                        steps {
                 bat '''
-                    python "%SERVICE_MANAGER%" stop "%SERVICE_ID%"
+                    "%PYTHON_HOME%\\python.exe" ^
+                        "%SERVICE_MANAGER%" ^
+                        stop ^
+                        "%SERVICE_ID%"
                 '''
             }
         }
@@ -200,7 +203,7 @@ stage('Install Go') {
         stage('Install / Configure Service') {
             steps {
                 bat '''
-                    python "%SERVICE_MANAGER%" install ^
+                    "%PYTHON_HOME%\\python.exe"  "%SERVICE_MANAGER%" install ^
                         "%SERVICE_ID%" ^
                         "%DEPLOY_DIR%" ^
                         --type go ^
@@ -215,7 +218,7 @@ stage('Install Go') {
         stage('Start Service') {
             steps {
                 bat '''
-                    python "%SERVICE_MANAGER%" start "%SERVICE_ID%"
+                    "%PYTHON_HOME%\\python.exe"  "%SERVICE_MANAGER%" start "%SERVICE_ID%"
                 '''
             }
         }
