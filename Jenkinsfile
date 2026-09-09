@@ -27,6 +27,27 @@ environment {
             }
         }
 
+                stage('Check Environment') {
+            steps {
+                bat '''
+                    SET PATH=%PYTHON_HOME%;%PYTHON_HOME%\\Scripts;%PATH%
+
+                    echo ==============================
+                    echo PYTHON
+                    echo ==============================
+
+                    python --version
+                    python -m pip --version
+
+                    echo ==============================
+                    echo GIT
+                    echo ==============================
+
+                    git --version
+                '''
+            }
+        }
+
 stage('Install Go') {
     steps {
         powershell '''
