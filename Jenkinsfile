@@ -24,7 +24,17 @@ environment {
                 checkout scm
             }
         }
+stage('Check Ports') {
+    steps {
+        bat '''
+            echo ==========================================
+            echo Listening ports
+            echo ==========================================
 
+            netstat -ano | findstr LISTENING
+        '''
+    }
+}
                 stage('Check Environment') {
             steps {
                 bat '''
