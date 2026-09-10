@@ -137,11 +137,36 @@ func createCaptchaHandler(
 		return
 	}
 
+	imageBytes, err := generateCaptchaImage(code)
+
+	if err != nil {
+		log.Println("Captcha image error:", err)
+
+		// opcionalmente limpiar lo recién insertado
+		redisClient.Del(ctx, key)
+
+		writeJSON(
+			w,
+			http.StatusInternalServerError,
+			map[string]string{
+				"error": "Could not generate captcha image",
+			},
+		)
+
+		return
+	}
+
+	imageBase64 := base64.StdEncoding.EncodeToString(
+		imageBytes,
+	)
+
 	writeJSON(
 		w,
 		http.StatusOK,
 		map[string]string{
 			"captchaId": captchaID,
+			"image": "data:image/png;base64," +
+				imageBase64,
 		},
 	)
 }
