@@ -18,9 +18,10 @@ import (
 	"bytes"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
-	"golang.org/x/image/math/fixed"
+"golang.org/x/image/font"
+"golang.org/x/image/font/opentype"
+"golang.org/x/image/font/gofont/gobold"
+"golang.org/x/image/math/fixed"
 )
 import "encoding/base64"
 var (
@@ -399,17 +400,13 @@ func generateCaptchaImage(
 		draw.Src,
 	)
 
-	// Líneas de ruido
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 15; i++ {
 		drawLine(
 			img,
-
 			secureRandomInt(width),
 			secureRandomInt(height),
-
 			secureRandomInt(width),
 			secureRandomInt(height),
-
 			color.RGBA{
 				R: uint8(secureRandomInt(180)),
 				G: uint8(secureRandomInt(180)),
@@ -419,12 +416,29 @@ func generateCaptchaImage(
 		)
 	}
 
-	face := basicfont.Face7x13
+	ttf, err := opentype.Parse(gobold.TTF)
+	if err != nil {
+		panic(err)
+	}
 
-	x := 30
+	face, err := opentype.NewFace(
+		ttf,
+		&opentype.FaceOptions{
+			Size:    32,
+			DPI:     72,
+			Hinting: font.HintingFull,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	defer face.Close()
+
+	x := 15
 
 	for _, char := range code {
-		y := 35 + secureRandomInt(15)
+		y := 45 + secureRandomInt(10)
 
 		d := &font.Drawer{
 			Dst: img,
@@ -446,11 +460,9 @@ func generateCaptchaImage(
 			},
 		}
 
-		d.DrawString(
-			string(char),
-		)
+		d.DrawString(string(char))
 
-		x += 30
+		x += 36
 	}
 
 	return img
