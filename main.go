@@ -413,7 +413,8 @@ func generateCaptchaImage(
 				G: uint8(secureRandomInt(180)),
 				B: uint8(secureRandomInt(180)),
 				A: 255,
-			},3
+			},
+			3
 		)
 	}
 
