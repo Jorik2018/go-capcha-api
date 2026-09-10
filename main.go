@@ -447,9 +447,9 @@ func generateCaptchaImage(
 
 			Src: image.NewUniform(
 				color.RGBA{
-					R: uint8(30 + secureRandomInt(80)),
-					G: uint8(30 + secureRandomInt(80)),
-					B: uint8(30 + secureRandomInt(80)),
+					R: uint8(30 + secureRandomInt(90)),
+					G: uint8(30 + secureRandomInt(90)),
+					B: uint8(30 + secureRandomInt(90)),
 					A: 255,
 				},
 			),
