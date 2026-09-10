@@ -22,7 +22,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
 )
-
+import "encoding/base64"
 var (
 	ctx = context.Background()
 
