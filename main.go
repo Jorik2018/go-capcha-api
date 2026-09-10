@@ -372,13 +372,12 @@ func generateCode(length int) string {
 
 	return result.String()
 }
-
 func generateCaptchaImage(
 	code string,
 ) image.Image {
 	const (
-		width  = 200
-		height = 70
+		width  = 220
+		height = 80
 	)
 
 	img := image.NewRGBA(
@@ -400,7 +399,8 @@ func generateCaptchaImage(
 		draw.Src,
 	)
 
-	for i := 0; i < 15; i++ {
+	// Menos ruido para priorizar legibilidad
+	for i := 0; i < 10; i++ {
 		drawLine(
 			img,
 			secureRandomInt(width),
@@ -424,7 +424,7 @@ func generateCaptchaImage(
 	face, err := opentype.NewFace(
 		ttf,
 		&opentype.FaceOptions{
-			Size:    32,
+			Size:    46,
 			DPI:     72,
 			Hinting: font.HintingFull,
 		},
@@ -435,19 +435,19 @@ func generateCaptchaImage(
 
 	defer face.Close()
 
-	x := 15
+	x := 10
 
 	for _, char := range code {
-		y := 45 + secureRandomInt(10)
+		y := 56 + secureRandomInt(10)
 
 		d := &font.Drawer{
 			Dst: img,
 
 			Src: image.NewUniform(
 				color.RGBA{
-					R: uint8(secureRandomInt(100)),
-					G: uint8(secureRandomInt(100)),
-					B: uint8(secureRandomInt(100)),
+					R: uint8(30 + secureRandomInt(80)),
+					G: uint8(30 + secureRandomInt(80)),
+					B: uint8(30 + secureRandomInt(80)),
 					A: 255,
 				},
 			),
@@ -462,12 +462,11 @@ func generateCaptchaImage(
 
 		d.DrawString(string(char))
 
-		x += 36
+		x += 40
 	}
 
 	return img
 }
-
 func drawLine(
 	img *image.RGBA,
 	x0 int,
