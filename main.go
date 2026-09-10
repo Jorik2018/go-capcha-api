@@ -440,7 +440,7 @@ func generateCaptchaImage(
 	x := 10
 
 	for _, char := range code {
-		y := 44 + secureRandomInt(16)
+		y := 44 + secureRandomInt(18)
 
 		d := &font.Drawer{
 			Dst: img,
