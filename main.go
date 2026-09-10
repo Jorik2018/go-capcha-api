@@ -163,14 +163,15 @@ imageBase64 := base64.StdEncoding.EncodeToString(
 )
 
 	writeJSON(
-		w,
-		http.StatusOK,
-		map[string]string{
-			"captchaId": captchaID,
-			"image": "data:image/png;base64," +
-				imageBase64,
-		},
-	)
+	w,
+	http.StatusOK,
+	map[string]any{
+		"captchaId": captchaID,
+		"image": "data:image/png;base64," +
+			imageBase64,
+		"expiresIn": int(captchaTTL.Seconds()),
+	},
+)
 }
 
 func captchaImageHandler(
