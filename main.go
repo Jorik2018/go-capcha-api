@@ -15,7 +15,7 @@ import (
 	"os"
 	"strings"
 	"time"
-
+	"bytes"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"golang.org/x/image/font"
@@ -137,28 +137,29 @@ func createCaptchaHandler(
 		return
 	}
 
-	imageBytes, err := generateCaptchaImage(code)
+	img := generateCaptchaImage(code)
 
-	if err != nil {
-		log.Println("Captcha image error:", err)
+var buffer bytes.Buffer
 
-		// opcionalmente limpiar lo recién insertado
-		redisClient.Del(ctx, key)
+if err := png.Encode(&buffer, img); err != nil {
+	log.Println("Captcha PNG encode error:", err)
 
-		writeJSON(
-			w,
-			http.StatusInternalServerError,
-			map[string]string{
-				"error": "Could not generate captcha image",
-			},
-		)
+	redisClient.Del(ctx, key)
 
-		return
-	}
-
-	imageBase64 := base64.StdEncoding.EncodeToString(
-		imageBytes,
+	writeJSON(
+		w,
+		http.StatusInternalServerError,
+		map[string]string{
+			"error": "Could not generate captcha image",
+		},
 	)
+
+	return
+}
+
+imageBase64 := base64.StdEncoding.EncodeToString(
+	buffer.Bytes(),
+)
 
 	writeJSON(
 		w,
