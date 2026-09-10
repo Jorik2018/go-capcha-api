@@ -148,13 +148,14 @@ stage('Install Go') {
             }
         }
 
-        stage('Dependencies') {
-            steps {
-                bat '''
-                    go mod download
-                '''
-            }
-        }
+stage('Dependencies') {
+    steps {
+        bat '''
+            go mod tidy
+            go mod download
+        '''
+    }
+}
 
         stage('Build') {
             steps {
