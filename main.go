@@ -426,7 +426,7 @@ func generateCaptchaImage(
 	face, err := opentype.NewFace(
 		ttf,
 		&opentype.FaceOptions{
-			Size:    48,
+			Size:    50,
 			DPI:     72,
 			Hinting: font.HintingFull,
 		},
@@ -440,7 +440,7 @@ func generateCaptchaImage(
 	x := 10
 
 	for _, char := range code {
-		y := 40 + secureRandomInt(16)
+		y := 42 + secureRandomInt(16)
 
 		d := &font.Drawer{
 			Dst: img,
