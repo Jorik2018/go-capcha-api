@@ -413,7 +413,7 @@ func generateCaptchaImage(
 				G: uint8(secureRandomInt(180)),
 				B: uint8(secureRandomInt(180)),
 				A: 255,
-			},
+			},2
 		)
 	}
 
@@ -475,27 +475,38 @@ func drawLine(
 	x1 int,
 	y1 int,
 	c color.Color,
+	thickness int,
 ) {
 	dx := abs(x1 - x0)
 	dy := -abs(y1 - y0)
 
 	sx := -1
-
 	if x0 < x1 {
 		sx = 1
 	}
 
 	sy := -1
-
 	if y0 < y1 {
 		sy = 1
 	}
 
 	err := dx + dy
 
+	radius := thickness / 2
+
 	for {
-		if image.Pt(x0, y0).In(img.Bounds()) {
-			img.Set(x0, y0, c)
+		// Pintar un círculo en vez de un solo píxel
+		for ox := -radius; ox <= radius; ox++ {
+			for oy := -radius; oy <= radius; oy++ {
+				if ox*ox+oy*oy <= radius*radius {
+					x := x0 + ox
+					y := y0 + oy
+
+					if image.Pt(x, y).In(img.Bounds()) {
+						img.Set(x, y, c)
+					}
+				}
+			}
 		}
 
 		if x0 == x1 && y0 == y1 {
