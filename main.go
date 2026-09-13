@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -15,15 +17,15 @@ import (
 	"os"
 	"strings"
 	"time"
-	"bytes"
+
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-"golang.org/x/image/font"
-"golang.org/x/image/font/opentype"
-"golang.org/x/image/font/gofont/gobold"
-"golang.org/x/image/math/fixed"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/gofont/gobold"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/math/fixed"
 )
-import "encoding/base64"
+
 var (
 	ctx = context.Background()
 
@@ -31,7 +33,7 @@ var (
 )
 
 const (
-	captchaTTL    = 3 * time.Minute
+	captchaTTL    = 2 * time.Minute
 	captchaLength = 5
 )
 
@@ -140,38 +142,38 @@ func createCaptchaHandler(
 
 	img := generateCaptchaImage(code)
 
-var buffer bytes.Buffer
+	var buffer bytes.Buffer
 
-if err := png.Encode(&buffer, img); err != nil {
-	log.Println("Captcha PNG encode error:", err)
+	if err := png.Encode(&buffer, img); err != nil {
+		log.Println("Captcha PNG encode error:", err)
 
-	redisClient.Del(ctx, key)
+		redisClient.Del(ctx, key)
+
+		writeJSON(
+			w,
+			http.StatusInternalServerError,
+			map[string]string{
+				"error": "Could not generate captcha image",
+			},
+		)
+
+		return
+	}
+
+	imageBase64 := base64.StdEncoding.EncodeToString(
+		buffer.Bytes(),
+	)
 
 	writeJSON(
 		w,
-		http.StatusInternalServerError,
-		map[string]string{
-			"error": "Could not generate captcha image",
+		http.StatusOK,
+		map[string]any{
+			"captchaId": captchaID,
+			"image": "data:image/png;base64," +
+				imageBase64,
+			"expiresIn": int(captchaTTL.Seconds()),
 		},
 	)
-
-	return
-}
-
-imageBase64 := base64.StdEncoding.EncodeToString(
-	buffer.Bytes(),
-)
-
-	writeJSON(
-	w,
-	http.StatusOK,
-	map[string]any{
-		"captchaId": captchaID,
-		"image": "data:image/png;base64," +
-			imageBase64,
-		"expiresIn": int(captchaTTL.Seconds()),
-	},
-)
 }
 
 func captchaImageHandler(
@@ -363,11 +365,9 @@ func generateCode(length int) string {
 
 	for i := 0; i < length; i++ {
 		result.WriteByte(
-			captchaChars[
-				secureRandomInt(
-					len(captchaChars),
-				),
-			],
+			captchaChars[secureRandomInt(
+				len(captchaChars),
+			)],
 		)
 	}
 
