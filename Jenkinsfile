@@ -237,7 +237,7 @@ stage('Dependencies') {
                         "%SERVICE_ID%" ^
                         "%DEPLOY_DIR%" ^
                         --type go ^
-                        --port %APP_PORT% ^
+                        --env "PORT=%PORT%" ^
                         --executable "%EXE_NAME%" ^
                         --name "%SERVICE_NAME%" ^
                         --description "Go CAPTCHA API service"
