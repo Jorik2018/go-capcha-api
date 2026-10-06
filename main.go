@@ -52,7 +52,7 @@ func main() {
 	redisAddr := getVaultSecret(
 		vaultURI,
 		vaultToken,
-		"REDIS_URI",
+		"REDIS_URL",
 		nil,
 	)
 
