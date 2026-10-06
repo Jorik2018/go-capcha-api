@@ -15,8 +15,8 @@ pipeline {
         GO_ZIP = 'D:\\tools\\go.zip'
 
         PATH = "D:\\tools\\go\\bin;${env.PATH}"
-        VAULT_ADDR = https://vault.regionancash.gob.pe:8200  
-        VAULT_PATH = /v1/secret/data/go-capcha-api   
+        VAULT_ADDR = 'http://127.0.0.1:8200'
+        VAULT_PATH = '/v1/secret/data/go-capcha-api' 
     }
 
     stages {
