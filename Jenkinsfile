@@ -20,6 +20,122 @@ pipeline {
 
     stages {
 
+stage('TEST VAULT') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'VAULT_TOKEN',
+                        variable: 'VAULT_TOKEN'
+                    )
+                ]) {
+                    powershell '''
+                        $ErrorActionPreference = "Stop"
+
+                        Write-Host "=========================================="
+                        Write-Host "VAULT CONFIG"
+                        Write-Host "=========================================="
+
+                        Write-Host "VAULT_ADDR = $env:VAULT_ADDR"
+                        Write-Host "VAULT_PATH = $env:VAULT_PATH"
+
+                        $vaultUri = "$env:VAULT_ADDR$env:VAULT_PATH"
+
+                        Write-Host "VAULT_URI  = $vaultUri"
+                        Write-Host ""
+
+                        $headers = @{
+                            "X-Vault-Token" = $env:VAULT_TOKEN
+                        }
+
+
+                        Write-Host "=========================================="
+                        Write-Host "TEST 1 - TOKEN"
+                        Write-Host "=========================================="
+
+                        try {
+                            $response = Invoke-WebRequest `
+                                -Uri "$env:VAULT_ADDR/v1/auth/token/lookup-self" `
+                                -Headers $headers `
+                                -Method GET `
+                                -UseBasicParsing `
+                                -TimeoutSec 10
+
+                            Write-Host "HTTP Status:" $response.StatusCode
+                            Write-Host "TOKEN OK"
+                        }
+                        catch {
+                            Write-Host "TOKEN TEST FAILED"
+                            Write-Host $_.Exception.Message
+
+                            if ($_.Exception.Response) {
+                                Write-Host "HTTP Status:" `
+                                    ([int]$_.Exception.Response.StatusCode)
+                            }
+
+                            throw
+                        }
+
+
+                        Write-Host ""
+                        Write-Host "=========================================="
+                        Write-Host "TEST 2 - SECRET GLOBAL"
+                        Write-Host "=========================================="
+
+                        try {
+                            $response = Invoke-WebRequest `
+                                -Uri $vaultUri `
+                                -Headers $headers `
+                                -Method GET `
+                                -UseBasicParsing `
+                                -TimeoutSec 10
+
+                            Write-Host "HTTP Status:" $response.StatusCode
+
+                            $json = $response.Content | ConvertFrom-Json
+
+                            Write-Host ""
+                            Write-Host "Keys encontradas:"
+
+                            $json.data.data.PSObject.Properties |
+                                ForEach-Object {
+                                    Write-Host " -" $_.Name
+                                }
+
+                            Write-Host ""
+                            Write-Host "Buscando REDIS_URL..."
+
+                            $redisUrl = $json.data.data.REDIS_URL
+
+                            if ($null -eq $redisUrl) {
+                                throw "REDIS_URL no existe en Vault"
+                            }
+
+                            Write-Host "REDIS_URL encontrada correctamente"
+                            Write-Host "Valor:" $redisUrl
+                        }
+                        catch {
+                            Write-Host ""
+                            Write-Host "SECRET TEST FAILED"
+                            Write-Host $_.Exception.Message
+
+                            if ($_.Exception.Response) {
+                                Write-Host "HTTP Status:" `
+                                    ([int]$_.Exception.Response.StatusCode)
+                            }
+
+                            throw
+                        }
+
+
+                        Write-Host ""
+                        Write-Host "=========================================="
+                        Write-Host "TODOS LOS TESTS OK"
+                        Write-Host "=========================================="
+                    '''
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
