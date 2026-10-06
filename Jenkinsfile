@@ -8,7 +8,7 @@ environment {
     DEPLOY_DIR = 'D:\\microservices\\go-capcha-api'
     EXE_NAME = 'go-capcha-api.exe'
 
-    APP_PORT = '9731'
+    PORT = '9731'
     PYTHON_HOME = 'C:\\Tools\\Python312'
     GO_VERSION = '1.27.1'
     GO_ROOT = 'D:\\tools\\go'
@@ -266,7 +266,7 @@ stage('Dependencies') {
                 powershell '''
                     $ErrorActionPreference = "Stop"
 
-                    $url = "http://localhost:$env:APP_PORT/health"
+                    $url = "http://localhost:$env:PORT/health"
 
                     Write-Host "Checking $url"
 
