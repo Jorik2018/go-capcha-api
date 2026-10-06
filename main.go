@@ -49,19 +49,29 @@ func main() {
 	vaultURI := os.Getenv("VAULT_URI")
 	vaultToken := os.Getenv("VAULT_TOKEN")
 
-	redisAddr := getVaultSecret(
+	redisURL := getVaultSecret(
 		vaultURI,
 		vaultToken,
 		"REDIS_URL",
 		nil,
 	)
 
-	redisClient = redis.NewClient(&redis.Options{
-		Addr: redisAddr,
-	})
+	options, err := redis.ParseURL(redisURL)
+	if err != nil {
+		log.Fatalf(
+			"Invalid REDIS_URL %s: %v",
+			redisURL,
+			err,
+		)
+	}
+
+	redisClient = redis.NewClient(options)
 
 	if err := redisClient.Ping(ctx).Err(); err != nil {
-		log.Fatalf("Could not connect to Redis at %s: %v", redisAddr, err)
+		log.Fatalf(
+			"Could not connect to Redis: %v",
+			err,
+		)
 	}
 
 	http.HandleFunc("/health", healthHandler)
