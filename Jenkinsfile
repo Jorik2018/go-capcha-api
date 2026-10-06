@@ -16,7 +16,7 @@ pipeline {
 
         PATH = "D:\\tools\\go\\bin;${env.PATH}"
         VAULT_ADDR = 'http://127.0.0.1:8200'
-        VAULT_PATH = '/v1/secret/data/go-capcha-api' 
+        VAULT_PATH = '/v1/secret/data/global' 
     }
 
     stages {
@@ -60,87 +60,87 @@ pipeline {
             }
         }
 
-stage('Install Go') {
-    steps {
-        powershell '''
-            $ErrorActionPreference = "Stop"
+        stage('Install Go') {
+            steps {
+                powershell '''
+                    $ErrorActionPreference = "Stop"
 
-            $goExe = "$env:GO_ROOT\\bin\\go.exe"
+                    $goExe = "$env:GO_ROOT\\bin\\go.exe"
 
-            if (Test-Path $goExe) {
-                Write-Host "Go already installed:"
-                & $goExe version
-                exit 0
+                    if (Test-Path $goExe) {
+                        Write-Host "Go already installed:"
+                        & $goExe version
+                        exit 0
+                    }
+
+                    Write-Host "Go not found. Installing..."
+
+                    if (-not (Test-Path "D:\\tools")) {
+                        New-Item `
+                            -ItemType Directory `
+                            -Path "D:\\tools" `
+                            -Force | Out-Null
+                    }
+
+                    [Net.ServicePointManager]::SecurityProtocol = `
+                        [Net.SecurityProtocolType]::Tls12
+
+                    $url = "https://go.dev/dl/go$env:GO_VERSION.windows-amd64.zip"
+
+                    Write-Host "Downloading:"
+                    Write-Host $url
+
+                    Invoke-WebRequest `
+                        -Uri $url `
+                        -OutFile "$env:GO_ZIP" `
+                        -UseBasicParsing
+
+                    if (-not (Test-Path "$env:GO_ZIP")) {
+                        throw "Go zip was not downloaded"
+                    }
+
+                    $tempDir = "D:\\tools\\go-temp"
+
+                    if (Test-Path $tempDir) {
+                        Remove-Item `
+                            $tempDir `
+                            -Recurse `
+                            -Force
+                    }
+
+                    if (Test-Path "$env:GO_ROOT") {
+                        Remove-Item `
+                            "$env:GO_ROOT" `
+                            -Recurse `
+                            -Force
+                    }
+
+                    Write-Host "Extracting Go..."
+
+                    Expand-Archive `
+                        -Path "$env:GO_ZIP" `
+                        -DestinationPath $tempDir `
+                        -Force
+
+                    Move-Item `
+                        "$tempDir\\go" `
+                        "$env:GO_ROOT"
+
+                    Remove-Item `
+                        $tempDir `
+                        -Recurse `
+                        -Force
+
+                    Remove-Item `
+                        "$env:GO_ZIP" `
+                        -Force
+
+                    Write-Host "Go installed successfully"
+
+                    & "$env:GO_ROOT\\bin\\go.exe" version
+                '''
             }
-
-            Write-Host "Go not found. Installing..."
-
-            if (-not (Test-Path "D:\\tools")) {
-                New-Item `
-                    -ItemType Directory `
-                    -Path "D:\\tools" `
-                    -Force | Out-Null
-            }
-
-            [Net.ServicePointManager]::SecurityProtocol = `
-                [Net.SecurityProtocolType]::Tls12
-
-            $url = "https://go.dev/dl/go$env:GO_VERSION.windows-amd64.zip"
-
-            Write-Host "Downloading:"
-            Write-Host $url
-
-            Invoke-WebRequest `
-                -Uri $url `
-                -OutFile "$env:GO_ZIP" `
-                -UseBasicParsing
-
-            if (-not (Test-Path "$env:GO_ZIP")) {
-                throw "Go zip was not downloaded"
-            }
-
-            $tempDir = "D:\\tools\\go-temp"
-
-            if (Test-Path $tempDir) {
-                Remove-Item `
-                    $tempDir `
-                    -Recurse `
-                    -Force
-            }
-
-            if (Test-Path "$env:GO_ROOT") {
-                Remove-Item `
-                    "$env:GO_ROOT" `
-                    -Recurse `
-                    -Force
-            }
-
-            Write-Host "Extracting Go..."
-
-            Expand-Archive `
-                -Path "$env:GO_ZIP" `
-                -DestinationPath $tempDir `
-                -Force
-
-            Move-Item `
-                "$tempDir\\go" `
-                "$env:GO_ROOT"
-
-            Remove-Item `
-                $tempDir `
-                -Recurse `
-                -Force
-
-            Remove-Item `
-                "$env:GO_ZIP" `
-                -Force
-
-            Write-Host "Go installed successfully"
-
-            & "$env:GO_ROOT\\bin\\go.exe" version
-        '''
-    }
-}
+        }
 
         stage('Go Version') {
             steps {
