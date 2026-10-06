@@ -1,21 +1,23 @@
 pipeline {
     agent any
 
-environment {
-    SERVICE_ID = 'go-capcha-api'
-    SERVICE_NAME = 'Go Capcha API'
+    environment {
+        SERVICE_ID = 'go-capcha-api'
+        SERVICE_NAME = 'Go Capcha API'
 
-    DEPLOY_DIR = 'D:\\microservices\\go-capcha-api'
-    EXE_NAME = 'go-capcha-api.exe'
+        DEPLOY_DIR = 'D:\\microservices\\go-capcha-api'
+        EXE_NAME = 'go-capcha-api.exe'
 
-    PORT = '9731'
-    PYTHON_HOME = 'C:\\Tools\\Python312'
-    GO_VERSION = '1.27.1'
-    GO_ROOT = 'D:\\tools\\go'
-    GO_ZIP = 'D:\\tools\\go.zip'
+        PORT = '9731'
+        PYTHON_HOME = 'C:\\Tools\\Python312'
+        GO_VERSION = '1.27.1'
+        GO_ROOT = 'D:\\tools\\go'
+        GO_ZIP = 'D:\\tools\\go.zip'
 
-    PATH = "D:\\tools\\go\\bin;${env.PATH}"
-}
+        PATH = "D:\\tools\\go\\bin;${env.PATH}"
+        VAULT_ADDR = https://vault.regionancash.gob.pe:8200  
+        VAULT_PATH = /v1/secret/data/go-capcha-api   
+    }
 
     stages {
 
@@ -24,18 +26,20 @@ environment {
                 checkout scm
             }
         }
-stage('Check Ports') {
-    steps {
-        bat '''
-            echo ==========================================
-            echo Listening ports
-            echo ==========================================
 
-            netstat -ano | findstr LISTENING
-        '''
-    }
-}
-                stage('Check Environment') {
+        stage('Check Ports') {
+            steps {
+                bat '''
+                    echo ==========================================
+                    echo Listening ports
+                    echo ==========================================
+
+                    netstat -ano | findstr LISTENING
+                '''
+            }
+        }
+    
+        stage('Check Environment') {
             steps {
                 bat '''
                     SET PATH=%PYTHON_HOME%;%PYTHON_HOME%\\Scripts;%PATH%
@@ -148,14 +152,14 @@ stage('Install Go') {
             }
         }
 
-stage('Dependencies') {
-    steps {
-        bat '''
-            go mod tidy
-            go mod download
-        '''
-    }
-}
+        stage('Dependencies') {
+            steps {
+                bat '''
+                    go mod tidy
+                    go mod download
+                '''
+            }
+        }
 
         stage('Build') {
             steps {
@@ -232,16 +236,25 @@ stage('Dependencies') {
 
         stage('Install / Configure Service') {
             steps {
-                bat '''
-                    "%PYTHON_HOME%\\python.exe"  "%SERVICE_MANAGER%" install ^
-                        "%SERVICE_ID%" ^
-                        "%DEPLOY_DIR%" ^
-                        --type go ^
-                        --env "PORT=%PORT%" ^
-                        --executable "%EXE_NAME%" ^
-                        --name "%SERVICE_NAME%" ^
-                        --description "Go CAPTCHA API service"
-                '''
+                withCredentials([
+                    string(
+                        credentialsId: 'VAULT_TOKEN',
+                        variable: 'VAULT_TOKEN'
+                    )
+                ]) {
+                    bat '''
+                        "%PYTHON_HOME%\\python.exe"  "%SERVICE_MANAGER%" install ^
+                            "%SERVICE_ID%" ^
+                            "%DEPLOY_DIR%" ^
+                            --type go ^
+                            --env "PORT=%PORT%" ^
+                            --env "VAULT_URI=%VAULT_ADDR%%VAULT_PATH%" ^
+                            --env "VAULT_TOKEN=%VAULT_TOKEN%" ^
+                            --executable "%EXE_NAME%" ^
+                            --name "%SERVICE_NAME%" ^
+                            --description "Go CAPTCHA API service"
+                    '''
+                }
             }
         }
 

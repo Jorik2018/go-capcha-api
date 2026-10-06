@@ -45,8 +45,16 @@ type CaptchaValidationRequest struct {
 }
 
 func main() {
-	redisAddr := getEnv("REDIS_HOST", "localhost:6379")
 	port := getEnv("PORT", "8080")
+	vaultURI := os.Getenv("VAULT_URI")
+	vaultToken := os.Getenv("VAULT_TOKEN")
+
+	redisAddr := getVaultSecret(
+		vaultURI,
+		vaultToken,
+		"REDIS_URI",
+		nil,
+	)
 
 	redisClient = redis.NewClient(&redis.Options{
 		Addr: redisAddr,
