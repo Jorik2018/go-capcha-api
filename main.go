@@ -86,7 +86,6 @@ func main() {
 	fmt.Println("go-capcha-api")
 	fmt.Println("==========================================")
 	fmt.Println("Port: ", port)
-	fmt.Println("Redis:", redisAddr)
 	fmt.Println("==========================================")
 
 	log.Fatal(http.ListenAndServe(addr, nil))
