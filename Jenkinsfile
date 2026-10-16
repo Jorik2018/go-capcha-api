@@ -245,7 +245,6 @@ pipeline {
                         "%PYTHON_HOME%\\python.exe"  "%SERVICE_MANAGER%" install ^
                             "%SERVICE_ID%" ^
                             "%DEPLOY_DIR%" ^
-                            --type go ^
                             --env "PORT=%PORT%" ^
                             --env "VAULT_URI=%VAULT_ADDR%%VAULT_PATH%" ^
                             --env "VAULT_TOKEN=%VAULT_TOKEN%" ^
@@ -284,7 +283,7 @@ pipeline {
 
                     $ok = $false
 
-                    for ($i = 1; $i -le 10; $i++) {
+                    for ($i = 1; $i -le 5; $i++) {
 
                         try {
 
